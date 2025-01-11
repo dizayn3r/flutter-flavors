@@ -89,4 +89,4 @@ jobs:
         id: shorebird-patch
         with:
           platform: ios
-          args: "--export-options-plist ios/GHAExportOptions.plist --flavor=dev --staging"
+          args: "--export-options-plist ios/GHAExportOptions.plist --flavor=dev"
