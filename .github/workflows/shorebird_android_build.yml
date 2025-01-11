@@ -1,0 +1,83 @@
+name: Android Build & Release
+
+on:
+  push:
+    branches:
+      - main
+      - release/*
+  pull_request:
+
+jobs:
+  release:
+    name: Build & Release Android
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: 🛠 Checkout Repository
+        uses: actions/checkout@v3
+
+      # Setup Java
+      - name: ☕️ Set Up Java 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+
+      # Set up Flutter
+      - name: 🐦 Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.27.1
+          channel: stable
+
+      # Install Shorebird CLI
+      - name: 🐦 Install Shorebird CLI
+        run: |
+          curl -sSL https://install.shorebird.dev | bash
+          shorebird --version
+
+      # Ensure Shorebird is authenticated
+      - name: 🔑 Authenticate Shorebird
+        run: shorebird doctor
+        env:
+          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+
+      # Debug Environment (Optional)
+      - name: 🐞 Debug Tools & Environment
+        run: |
+          which flutter
+          which shorebird
+          which java
+          java -version
+          flutter doctor
+
+      # Build & Release Shorebird for multiple flavors
+      - name: 🚀 Build & Release (Dev)
+        run: |
+          shorebird release android --verbose --flavor=dev --target=lib/main_dev.dart --artifact=apk
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.13-11/x64
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+
+      - name: 🚀 Build & Release (Staging)
+        if: github.ref == 'refs/heads/staging'
+        run: |
+          shorebird release android --verbose --flavor=staging --target=lib/main_staging.dart --artifact=apk
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.13-11/x64
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+
+      - name: 🚀 Build & Release (Prod)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          shorebird release android --verbose --flavor=prod --target=lib/main_prod.dart --artifact=apk
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.13-11/x64
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
