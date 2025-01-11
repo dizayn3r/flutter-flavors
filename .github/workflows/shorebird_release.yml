@@ -8,6 +8,8 @@ on:
 
 env:
   SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+  API_URL: ${{ secrets.API_URL }}
+  DEBUG: ${{ secrets.FLAVOR }}
 
 jobs:
   release-android:
