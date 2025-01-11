@@ -37,14 +37,14 @@ jobs:
           chmod 600 /tmp/keystore/keystore.jks
 
       - name: 🤖 Build APK
-        run: flutter build apk --split-per-abi --flavor dev --target lib/main_dev.dart
+        run: flutter build apk --flavor dev --target lib/main_dev.dart
         env:
           KEYSTORE_FILE: /tmp/keystore/keystore.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
 
       - name: 📦 Build App Bundle
-        run: flutter build appbundle --split-per-abi --flavor dev --target lib/main_dev.dart
+        run: flutter build appbundle --flavor dev --target lib/main_dev.dart
         env:
           KEYSTORE_FILE: /tmp/keystore/keystore.jks
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}

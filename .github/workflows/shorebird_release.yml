@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     tags:
-      - "v[0-9].[0-9]+.[0-9]+" # e.g. v1.0.0
+      - "v[0-9]+.[0-9]+.[0-9]+" # Matches tags like v1.0.0
 
 env:
   SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
@@ -19,7 +19,7 @@ jobs:
     name: 🤖 Release Android (${{ matrix.flavor }})
 
     steps:
-      - name: 📚 Git Checkout
+      - name: 📚 Checkout Code
         uses: actions/checkout@v4
 
       - name: ☕️ Setup Java
@@ -35,7 +35,9 @@ jobs:
           cache: true
 
       - name: 🔐 Decode Keystore
-        run: echo ${{ secrets.KEYSTORE }} | base64 --decode > ${{ github.workspace }}/keystore.jks
+        env:
+          KEYSTORE: ${{ secrets.KEYSTORE }}
+        run: echo $KEYSTORE | base64 --decode > ${{ github.workspace }}/keystore.jks
 
       - name: 🚀 Shorebird Release (${{ matrix.flavor }})
         uses: shorebirdtech/shorebird-release@v0
@@ -50,13 +52,13 @@ jobs:
       - name: 📦 Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: flutter_and_friends-${{ matrix.flavor }}-${{ github.ref_name }}.apk
-          path: build/app/outputs/apk/${{ matrix.flavor }}/release/app-${{ matrix.flavor }}-release.apk
+          name: app-${{ matrix.flavor }}-${{ github.ref_name }}.apk
+          path: build/app/outputs/flutter-apk/app-${{ matrix.flavor }}-release.apk
 
       - name: 📦 Upload App Bundle
         uses: actions/upload-artifact@v4
         with:
-          name: flutter_and_friends-${{ matrix.flavor }}-${{ github.ref_name }}.aab
+          name: app-${{ matrix.flavor }}-${{ github.ref_name }}.aab
           path: build/app/outputs/bundle/${{ matrix.flavor }}/release/app-${{ matrix.flavor }}-release.aab
 
   release-ios:
@@ -68,7 +70,7 @@ jobs:
     name: 🍎 Release iOS (${{ matrix.flavor }})
 
     steps:
-      - name: 📚 Git Checkout
+      - name: 📚 Checkout Code
         uses: actions/checkout@v4
 
       - name: 🐦 Setup Shorebird
@@ -76,7 +78,7 @@ jobs:
         with:
           cache: true
 
-      - name: ✍️ Setup XCode Signing
+      - name: ✍️ Setup Xcode Signing
         env:
           CERTIFICATE: ${{ secrets.CERTIFICATE }}
           CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
@@ -108,15 +110,15 @@ jobs:
           platform: ios
           args: "--export-options-plist ios/GHAExportOptions.plist --verbose --flavor=${{ matrix.flavor }} --target=lib/main_${{ matrix.flavor }}.dart"
 
-      - name: 🧹 Clean Up
+      - name: 🧹 Cleanup Keychain and Profiles
         if: ${{ always() }}
         run: |
           PP_PATH=$RUNNER_TEMP/temp.mobileprovision
           security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
           rm $RUNNER_TEMP/temp.mobileprovision
 
-      - name: 📦 Upload Artifact
+      - name: 📦 Upload IPA
         uses: actions/upload-artifact@v4
         with:
-          name: flutter_and_friends-${{ matrix.flavor }}-${{ github.ref_name }}.ipa
-          path: build/ios/ipa/flutter_and_friends_${{ matrix.flavor }}.ipa
+          name: app-${{ matrix.flavor }}-${{ github.ref_name }}.ipa
+          path: build/ios/ipa/app-${{ matrix.flavor }}.ipa
