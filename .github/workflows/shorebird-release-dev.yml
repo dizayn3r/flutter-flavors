@@ -1,0 +1,116 @@
+name: Shorebird Release - Dev
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+-dev" # Matches tags like v1.0.0-dev
+
+env:
+  SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+
+jobs:
+  release-android:
+    runs-on: ubuntu-latest
+    name: 🤖 Release Android (dev)
+
+    steps:
+      - name: 📚 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: ☕️ Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: "17"
+          distribution: "temurin"
+          cache: gradle
+
+      - name: 🐦 Setup Shorebird
+        uses: shorebirdtech/setup-shorebird@v1
+        with:
+          cache: true
+
+      - name: 🔐 Decode Keystore
+        env:
+          KEYSTORE: ${{ secrets.KEYSTORE }}
+        run: echo $KEYSTORE | base64 --decode > ${{ github.workspace }}/keystore.jks
+
+      - name: 🚀 Shorebird Release (dev)
+        uses: shorebirdtech/shorebird-release@v0
+        env:
+          KEYSTORE_FILE: ${{ github.workspace }}/keystore.jks
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
+        with:
+          platform: android
+          args: "--verbose --flavor=dev --target=lib/main_dev.dart --artifact=apk"
+
+      - name: 📦 Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-dev-${{ github.ref_name }}.apk
+          path: build/app/outputs/flutter-apk/app-dev-release.apk
+
+      - name: 📦 Upload App Bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-dev-${{ github.ref_name }}.aab
+          path: build/app/outputs/bundle/devRelease/app-dev-release.aab
+
+  release-ios:
+    runs-on: macos-latest
+    name: 🍎 Release iOS (dev)
+
+    steps:
+      - name: 📚 Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🐦 Setup Shorebird
+        uses: shorebirdtech/setup-shorebird@v1
+        with:
+          cache: true
+
+      - name: ✍️ Setup Xcode Signing
+        env:
+          CERTIFICATE: ${{ secrets.CERTIFICATE }}
+          CERTIFICATE_PASSWORD: ${{ secrets.CERTIFICATE_PASSWORD }}
+          PROVISIONING_PROFILE: ${{ secrets.PROVISIONING_PROFILE }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+          PP_PATH=$RUNNER_TEMP/temp.mobileprovision
+
+          echo -n "$CERTIFICATE" | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$PROVISIONING_PROFILE" | base64 --decode -o $PP_PATH
+
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          security import $CERTIFICATE_PATH -P "$CERTIFICATE_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+          security find-identity -v
+
+          UUID=$(/usr/libexec/PlistBuddy -c "Print UUID" /dev/stdin <<< $(/usr/bin/security cms -D -i $PP_PATH))
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
+
+      - name: 🚀 Shorebird Release (dev)
+        uses: shorebirdtech/shorebird-release@v0
+        with:
+          platform: ios
+          args: "--export-options-plist ios/GHAExportOptions.plist --verbose --flavor=dev --target=lib/main_dev.dart"
+
+      - name: 🧹 Cleanup Keychain and Profiles
+        if: ${{ always() }}
+        run: |
+          PP_PATH=$RUNNER_TEMP/temp.mobileprovision
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+          rm $RUNNER_TEMP/temp.mobileprovision
+
+      - name: 📦 Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-dev-${{ github.ref_name }}.ipa
+          path: build/ios/ipa/app-dev.ipa
