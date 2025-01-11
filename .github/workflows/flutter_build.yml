@@ -30,9 +30,17 @@ jobs:
 
       - name: Build APK
         run: flutter build apk --split-per-abi --flavor dev --target lib/main_dev.dart
+        env:
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
 
       - name: Build App Bundle
         run: flutter build appbundle --split-per-abi --flavor dev --target lib/main_dev.dart
+        env:
+          KEYSTORE_FILE: ${{ secrets.KEYSTORE_FILE }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v3
