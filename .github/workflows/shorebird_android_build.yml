@@ -34,9 +34,10 @@ jobs:
 
       # Install Shorebird CLI
       - name: 🐦 Install Shorebird CLI
-        run: |
-          curl -sSL https://install.shorebird.dev | bash
-          shorebird --version
+        uses: shorebirdtech/setup-shorebird@v1
+
+      - name: Verify Shorebird Installation
+        run: shorebird --version
 
       # Ensure Shorebird is authenticated
       - name: 🔑 Authenticate Shorebird
