@@ -11,6 +11,21 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  Image setImage(Environment env) {
+    switch (env) {
+      case Environment.dev:
+        return Image.asset("assets/icons/dev_icon.png");
+      case Environment.staging:
+        return Image.asset(
+          "assets/icons/staging_icon.png",
+          color: Colors.greenAccent,
+          colorBlendMode: BlendMode.hue,
+        );
+      case Environment.prod:
+        return Image.asset("assets/icons/prod_icon.png");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,6 +38,9 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Center(
+              child: setImage(AppEnvironment.environment),
+            ),
             Text(
               AppEnvironment.apiUrl,
               style: Theme.of(context).textTheme.headlineMedium,
