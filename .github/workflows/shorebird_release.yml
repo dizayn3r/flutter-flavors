@@ -8,8 +8,6 @@ on:
 
 env:
   SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
-  API_URL: ${{ secrets.API_URL }}
-  DEBUG: ${{ secrets.FLAVOR }}
 
 jobs:
   release-android:
@@ -64,21 +62,6 @@ jobs:
         with:
           name: flutter_and_friends-${{ github.ref_name }}.aab
           path: build/app/outputs/bundle/release/app-release.aab
-
-      - name: 🪵 Collect Error Logs
-        if: failure()
-        run: |
-          mkdir -p error-logs
-          for log_file in $(find ${{ runner.temp }} -type f); do
-            grep -i "error" "$log_file" >> error-logs/errors.log || true
-          done
-          
-      - name: 📤 Upload Error Logs
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: error-logs
-          path: error-logs/errors.log
 
   # release-ios:
   #   runs-on: macos-latest
