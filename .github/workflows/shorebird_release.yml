@@ -56,6 +56,18 @@ jobs:
           name: flutter_and_friends-${{ github.ref_name }}.aab
           path: build/app/outputs/bundle/release/app-release.aab
 
+      - name: 🪵 Collect and Upload Logs
+        if: failure()
+        run: |
+          mkdir -p logs
+          cp -r ${{ runner.temp }}/* logs/ || true
+      - name: 📤 Upload Logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: shorebird-setup-logs
+          path: logs/
+
   # release-ios:
   #   runs-on: macos-latest
 
