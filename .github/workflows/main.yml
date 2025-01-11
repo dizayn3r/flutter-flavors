@@ -1,0 +1,43 @@
+name: Flutter Build
+
+on:
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  build:
+    name: Build & Release Android
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🛠 Checkout Repository
+      - uses: actions/checkout@v3
+
+      - name: Cache Flutter SDK
+        uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: flutter-${{ hashFiles('**/.flutter-plugins') }}
+
+      # Set up Flutter
+      - name: 🐦 Install Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.27.1
+          channel: stable
+
+      - name: Get dependencies
+        run: flutter pub get
+
+      - name: Build APK
+        run: flutter build apk --split-per-abi --flavor dev --target main_dev.dart
+
+      - name: Build App Bundle
+        run: flutter build appbundle --split-per-abi --flavor dev --target main_dev.dart
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: android-release
+          path: |
+            build/app/outputs/apk/release/
+            build/app/outputs/bundle/release/
