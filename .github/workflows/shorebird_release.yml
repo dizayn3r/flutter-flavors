@@ -56,17 +56,20 @@ jobs:
           name: flutter_and_friends-${{ github.ref_name }}.aab
           path: build/app/outputs/bundle/release/app-release.aab
 
-      - name: 🪵 Collect and Upload Logs
+      - name: 🪵 Collect Error Logs
         if: failure()
         run: |
-          mkdir -p logs
-          cp -r ${{ runner.temp }}/* logs/ || true
-      - name: 📤 Upload Logs
+          mkdir -p error-logs
+          for log_file in $(find ${{ runner.temp }} -type f); do
+            grep -i "error" "$log_file" >> error-logs/errors.log || true
+          done
+          
+      - name: 📤 Upload Error Logs
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: shorebird-setup-logs
-          path: logs/
+          name: error-logs
+          path: error-logs/errors.log
 
   # release-ios:
   #   runs-on: macos-latest
