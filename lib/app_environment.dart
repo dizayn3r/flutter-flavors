@@ -1,10 +1,8 @@
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-
 enum Environment { dev, staging, prod }
 
 abstract class AppEnvironment {
-  static String name = dotenv.env["FLAVOR"] ?? "NA";
-  static String apiUrl = dotenv.env["API_URL"] ?? "";
+  static String name = "Development";
+  static String apiUrl = "https://dev-api.example.com";
   static Environment _environment = Environment.dev;
 
   static Environment get environment => _environment;
@@ -15,18 +13,21 @@ abstract class AppEnvironment {
     // Load the appropriate .env file
     switch (env) {
       case Environment.dev:
-        await dotenv.load(fileName: ".env.dev");
+        name = "Development";
+        apiUrl = "https://dev-api.example.com";
         break;
       case Environment.staging:
-        await dotenv.load(fileName: ".env.staging");
+        name = "Staging";
+        apiUrl = "https://staging-api.example.com";
         break;
       case Environment.prod:
-        await dotenv.load(fileName: ".env.prod");
+        name = "Production";
+        apiUrl = "https://api.example.com";
         break;
     }
 
     // Update the name and apiUrl dynamically
-    apiUrl = dotenv.env["API_URL"] ?? "";
-    name = dotenv.env["FLAVOR"] ?? "NA";
+    apiUrl = "https://dev-api.example.com";
+    name = "Development";
   }
 }
