@@ -18,7 +18,7 @@ jobs:
         key: flutter-${{ hashFiles('**/.flutter-plugins') }}
 
     - name: Set up Flutter
-      uses: subosito/flutter-action@v3
+      uses: subosito/flutter-action@v4
       with:
         channel: 'stable' # Use the 'stable' channel
 
