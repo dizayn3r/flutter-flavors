@@ -42,7 +42,7 @@ jobs:
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
         with:
           platform: android
-          args: "--flavor prod --target lib/main_prod.dart --artifact=apk"
+          args: "--flavor prod --target lib/main_prod.dart --verbose --artifact=apk"
 
       - name: 📦 Upload APK
         uses: actions/upload-artifact@v4
