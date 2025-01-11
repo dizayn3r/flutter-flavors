@@ -42,7 +42,7 @@ jobs:
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
         with:
           platform: android
-          args: "--verbose --flavor=dev --target=lib/main_dev.dart --staging"
+          args: "--verbose --flavor=dev --target=lib/main_dev.dart"
 
   patch-dev-ios:
     runs-on: macos-latest
