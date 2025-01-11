@@ -1,18 +1,18 @@
-name: Shorebird Patch - Staging
+name: Shorebird Patch - Prod
 
 on:
   push:
     tags:
-      - "v[0-9]+.[0-9]+.[0-9]+-staging-hotfix.[0-9]+"  # For staging hotfix, e.g. v1.0.0-staging-hotfix.1
+      - "v[0-9].[0-9]+.[0-9]+-prod-hotfix.3"  # For prod hotfix, e.g. v1.0.0-prod-hotfix.1
 
 env:
   SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
 jobs:
-  patch-staging-android:
+  patch-prod-android:
     runs-on: ubuntu-latest
 
-    name: 🤖 Patch Android Staging
+    name: 🤖 Patch Android Prod
 
     steps:
       - name: 📚 Git Checkout
@@ -33,7 +33,7 @@ jobs:
       - name: 🔐 Decode Keystore
         run: echo ${{ secrets.KEYSTORE }} | base64 --decode > ${{ github.workspace }}/keystore.jks
 
-      - name: 🧩 Shorebird Patch - Staging
+      - name: 🧩 Shorebird Patch - Prod
         uses: shorebirdtech/shorebird-patch@v0
         id: shorebird-patch
         env:
@@ -42,12 +42,12 @@ jobs:
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
         with:
           platform: android
-          args: "--verbose --flavor=staging --target=lib/main_staging.dart --staging"
+          args: "--verbose --flavor=prod --target=lib/main_prod.dart --staging"
 
-  patch-staging-ios:
+  patch-prod-ios:
     runs-on: macos-latest
 
-    name: 🍎 Patch iOS Staging
+    name: 🍎 Patch iOS Prod
 
     steps:
       - name: 📚 Git Checkout
@@ -84,9 +84,9 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles/$UUID.mobileprovision
 
-      - name: 🧩 Shorebird Patch - Staging
+      - name: 🧩 Shorebird Patch - Prod
         uses: shorebirdtech/shorebird-patch@v0
         id: shorebird-patch
         with:
           platform: ios
-          args: "--export-options-plist ios/GHAExportOptions.plist --flavor=staging --staging"
+          args: "--export-options-plist ios/GHAExportOptions.plist --flavor=prod --staging"
