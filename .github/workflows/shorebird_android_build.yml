@@ -8,6 +8,9 @@ on:
   #     - release/*
   # pull_request:
 
+env:
+  SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
+
 jobs:
   release:
     name: Build & Release Android
@@ -42,8 +45,6 @@ jobs:
       # Ensure Shorebird is authenticated
       - name: 🔑 Authenticate Shorebird
         run: shorebird doctor
-        env:
-          SHOREBIRD_TOKEN: ${{ secrets.SHOREBIRD_TOKEN }}
 
       # Debug Environment (Optional)
       - name: 🐞 Debug Tools & Environment
