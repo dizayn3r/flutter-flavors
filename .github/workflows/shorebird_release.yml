@@ -34,9 +34,6 @@ jobs:
       - name: 🔐 Decode Keystore
         run: echo ${{ secrets.KEYSTORE }} | base64 --decode > ${{ github.workspace }}/keystore.jks
 
-      - name: 🧹 Clean Build Cache
-        run: flutter clean
-
       - name: 🚀 Shorebird Release
         uses: shorebirdtech/shorebird-release@v0
         env:
