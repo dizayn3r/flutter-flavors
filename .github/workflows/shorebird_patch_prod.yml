@@ -10,7 +10,7 @@ env:
 
 jobs:
   patch-prod-android:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     name: 🤖 Patch Android Prod
 
