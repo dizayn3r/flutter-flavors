@@ -17,6 +17,7 @@ class _SplashScreenState extends State<SplashScreen> {
   bool _isUpdateAvailable = false;
   bool _isLoading = true;
   UpdateStatus updateStatus = UpdateStatus.upToDate;
+  final updater = ShorebirdUpdater();
 
   @override
   void initState() {
@@ -27,7 +28,7 @@ class _SplashScreenState extends State<SplashScreen> {
   // Check for updates and set the state based on the result
   Future<void> _checkForUpdates() async {
     try {
-      updateStatus = await ShorebirdUpdater().checkForUpdate();
+      updateStatus = await updater.checkForUpdate();
 
       if (updateStatus == UpdateStatus.outdated) {
         setState(() {
@@ -95,8 +96,7 @@ class _SplashScreenState extends State<SplashScreen> {
     // If update is available, navigate to UpdateScreen
     if (_isUpdateAvailable) {
       return UpdateScreen(
-        updateStatus: updateStatus,
-      ); // Navigate to UpdateScreen if update is available
+          updater: updater); // Navigate to UpdateScreen if update is available
     }
 
     // Otherwise, navigate to the HomeScreen

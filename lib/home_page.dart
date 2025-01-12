@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_flavors/about_screen.dart';
 import 'package:flutter_flavors/app_environment.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -33,20 +34,31 @@ class _MyHomePageState extends State<MyHomePage> {
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => AboutScreen(),
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.settings_rounded,
+            ),
+          ),
+        ],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Center(
-              child: setImage(AppEnvironment.environment),
-            ),
-            Text(
-              AppEnvironment.apiUrl,
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
-        ),
+      body: Column(
+        children: <Widget>[
+          Center(
+            child: setImage(AppEnvironment.environment),
+          ),
+          Text(
+            AppEnvironment.apiUrl,
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+        ],
       ),
     );
   }
