@@ -42,7 +42,7 @@ jobs:
           KEYSTORE_ALIAS: ${{ secrets.KEYSTORE_ALIAS }}
         with:
           platform: android
-          args: "--verbose --flavor=prod --target=lib/main_prod.dart --staging"
+          args: "--verbose --flavor=prod --target=lib/main_prod.dart"
 
   patch-prod-ios:
     runs-on: macos-latest
@@ -89,4 +89,4 @@ jobs:
         id: shorebird-patch
         with:
           platform: ios
-          args: "--export-options-plist ios/GHAExportOptions.plist --flavor=prod --staging"
+          args: "--export-options-plist ios/GHAExportOptions.plist --flavor=prod"
